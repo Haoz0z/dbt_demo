@@ -1,0 +1,94 @@
+{{ config(materialized='table') }}
+
+with customers as (
+    select
+        cast(id as signed) as customer_id,
+        first_name,
+        last_name
+    from {{ ref('raw_customers') }}
+),
+
+orders as (
+    select
+        cast(id as signed) as order_id,
+        cast(user_id as signed) as customer_id,
+        cast(order_date as date) as order_date,
+        status,
+        cast(amount as decimal(10,2)) as order_amount
+    from {{ ref('raw_orders') }}
+),
+
+payments as (
+    select
+        cast(order_id as signed) as order_id,
+        payment_method,
+        cast(amount as decimal(10,2)) as payment_amount
+    from {{ ref('raw_payments') }}
+),
+
+order_enriched as (
+    select
+        o.order_id,
+        o.customer_id,
+        o.order_date,
+        o.status,
+        o.order_amount,
+        p.payment_method,
+        p.payment_amount
+    from orders o
+    left join payments p
+        on o.order_id = p.order_id
+),
+
+customer_metrics as (
+    select
+        customer_id,
+        count(*) as total_orders,
+        sum(case when status = 'completed' then 1 else 0 end) as completed_orders,
+        sum(case when status = 'returned' then 1 else 0 end) as returned_orders,
+        sum(case when status = 'completed' then order_amount else 0 end) as total_completed_amount,
+        sum(case when status = 'returned' then order_amount else 0 end) as total_returned_amount,
+        max(order_date) as last_order_date
+    from order_enriched
+    group by customer_id
+),
+
+preferred_payment as (
+    select customer_id, payment_method
+    from (
+        select
+            customer_id,
+            payment_method,
+            count(*) as cnt,
+            row_number() over (
+                partition by customer_id
+                order by count(*) desc, payment_method
+            ) as rn
+        from order_enriched
+        where payment_method is not null
+        group by customer_id, payment_method
+    ) t
+    where rn = 1
+)
+
+select
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+
+    coalesce(m.total_orders, 0) as total_orders,
+    coalesce(m.completed_orders, 0) as completed_orders,
+    coalesce(m.returned_orders, 0) as returned_orders,
+
+    coalesce(m.total_completed_amount, 0) as total_completed_amount,
+    coalesce(m.total_returned_amount, 0) as total_returned_amount,
+
+    m.last_order_date,
+    p.payment_method as preferred_payment_method
+
+from customers c
+left join customer_metrics m
+    on c.customer_id = m.customer_id
+left join preferred_payment p
+    on c.customer_id = p.customer_id
+order by c.customer_id
