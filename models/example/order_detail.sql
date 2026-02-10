@@ -2,7 +2,7 @@
 
 with customers as (
     select
-        cast(id as integer) as customer_id,
+        cast(id as signed) as customer_id,
         first_name,
         last_name
     from {{ ref('raw_customers') }}
@@ -10,19 +10,19 @@ with customers as (
 
 orders as (
     select
-        cast(id as integer) as order_id,
-        cast(user_id as integer) as customer_id,
+        cast(id as signed) as order_id,
+        cast(user_id as signed) as customer_id,
         cast(order_date as date) as order_date,
         status,
-        cast(amount as numeric) as order_amount
+        cast(amount as decimal(10,2)) as order_amount
     from {{ ref('raw_orders') }}
 ),
 
 payments as (
     select
-        cast(order_id as integer) as order_id,
+        cast(order_id as signed) as order_id,
         payment_method,
-        cast(amount as numeric) as payment_amount
+        cast(amount as decimal(10,2)) as payment_amount
     from {{ ref('raw_payments') }}
 )
 
@@ -38,8 +38,9 @@ select
 
     p.payment_method,
     p.payment_amount
-
 from orders o
-left join customers c on o.customer_id = c.customer_id
-left join payments p on o.order_id = p.order_id
+left join customers c
+    on o.customer_id = c.customer_id
+left join payments p
+    on o.order_id = p.order_id
 order by o.order_id
