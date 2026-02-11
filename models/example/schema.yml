@@ -1,21 +1,58 @@
-
 version: 2
 
 models:
-  - name: my_first_dbt_model
-    description: "A starter dbt model"
+  - name: customer_overview
+    description: "Customer-level metrics built from raw_customers, raw_orders, raw_payments seeds."
     columns:
-      - name: id
-        description: "The primary key for this table"
-        data_tests:
+      - name: customer_id
+        description: "Primary key for each customer."
+        tests:
+          - not_null
           - unique
+
+      - name: total_orders
+        description: "Total number of orders for the customer."
+        tests:
           - not_null
 
-  - name: my_second_dbt_model
-    description: "A starter dbt model"
+      - name: total_completed_amount
+        description: "Sum of completed order amounts."
+        tests:
+          - not_null
+
+  - name: order_detail
+    description: "Order-level detail joined to customer and payment information."
     columns:
-      - name: id
-        description: "The primary key for this table"
-        data_tests:
+      - name: order_id
+        description: "Primary key for each order."
+        tests:
+          - not_null
           - unique
+
+      - name: status
+        description: "Order status."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["completed", "returned"]
+
+      - name: payment_method
+        description: "Payment method used for the order."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["credit_card", "paypal", "bank_transfer"]
+
+  - name: daily_sales_summary
+    description: "Daily aggregated sales metrics based on raw_orders."
+    columns:
+      - name: order_date
+        description: "One row per day."
+        tests:
+          - not_null
+          - unique
+
+      - name: orders_count
+        description: "Number of orders on that day."
+        tests:
           - not_null
