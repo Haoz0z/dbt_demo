@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 with order_enriched as (
   select * from {{ ref('int_order_detail') }}
 ),

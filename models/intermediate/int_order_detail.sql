@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 select
   o.order_id,
   o.order_date,
