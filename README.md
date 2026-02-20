@@ -1,15 +1,7 @@
-Welcome to your new dbt project!
+Project Overview
 
-### Using the starter project
+This project is a modular data transformation pipeline built using dbt (data build tool).
 
-Try running the following commands:
-- dbt run
-- dbt test
+It transforms raw source data into clean, well-structured, and analytics-ready models using a layered modeling approach. The project focuses on maintainability, scalability, and data quality.
 
-
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+The pipeline follows modern analytics engineering best practices and is designed to be easily deployable in both local and cloud environments.
