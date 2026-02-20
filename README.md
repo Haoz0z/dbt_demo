@@ -39,3 +39,34 @@ Purpose: Provide analytics-ready datasets.
 	•	Defines KPIs
 	•	Supports reporting tools
 
+
+	Data Quality & Testing
+
+Automated tests are implemented to ensure data reliability:
+	•	not_null
+	•	unique
+	•	relationships
+	•	Custom validation rules
+
+Testing is defined in schema.yml files and executed using:
+
+dbt test 
+
+
+
+Setup & Installation : 
+
+
+Installation Steps
+	1.	Clone the repository: git clone https://github.com/your-username/your-repo.git
+cd your-repo
+
+	2.	Create and activate virtual environment:python -m venv venv
+source venv/bin/activate
+
+    3. Install dbt adapter:pip install dbt-mysql
+
+	
+
+
+
