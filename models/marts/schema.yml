@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: customer_overview
+    columns:
+      - name: customer_id
+        tests: [not_null, unique]
+
+  - name: daily_sales_summary
+    columns:
+      - name: order_date
+        tests: [not_null, unique]
